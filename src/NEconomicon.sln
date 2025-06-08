@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEconomicon", "NEconomicon\NEconomicon.csproj", "{9F7A45F0-6517-4778-8507-683665E5D992}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEconomicon.Tests", "NEconomicon.Tests\NEconomicon.Tests.csproj", "{EA6527A0-24F0-4D0A-AC3B-11378DC822FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{9F7A45F0-6517-4778-8507-683665E5D992}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F7A45F0-6517-4778-8507-683665E5D992}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F7A45F0-6517-4778-8507-683665E5D992}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA6527A0-24F0-4D0A-AC3B-11378DC822FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA6527A0-24F0-4D0A-AC3B-11378DC822FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA6527A0-24F0-4D0A-AC3B-11378DC822FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA6527A0-24F0-4D0A-AC3B-11378DC822FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

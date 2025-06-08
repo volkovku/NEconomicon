@@ -34,56 +34,21 @@ public sealed class Scheme
 
     public ComponentInfo RegisterComponent(Type componentType)
     {
-        if (!componentType.ImplementsInterface(typeof(IComponent<>)))
-        {
-            return Throw.Ex<ComponentInfo>(
-                $"Can't register component of type '{componentType}',"
-                + $" it should implement '{typeof(IComponent<>)}' interface.");
-        }
-
-        var componentKey = GetComponentKey(componentType);
+        var componentInfo = ComponentInfo.Create(componentType);
+        var componentKey = componentInfo.Key;
         if (_componentsByKey.TryGetValue(componentKey, out var collition))
         {
             return Throw.Ex<ComponentInfo>(
                 "Component with same key already registered ("
-                + $"key={componentKey},"
-                + $"type={componentType})");
+                + $"key={componentKey}, "
+                + $"new_type={componentType}, "
+                + $"old_type={collition.Type})");
         }
-
-        var newInstanceFunc = GetNewInstanceFunc(componentType);
-        var cleanUpFunc = new Action<IComponent>(comp => {});
-        var componentInfo = new ComponentInfo(
-            componentKey, 
-            newInstanceFunc, 
-            cleanUpFunc
-        );
 
         _componentsByKey.Add(componentKey, componentInfo);
         _componentsByType.Add(componentType, componentInfo);
         
         return componentInfo;
-    }
-
-    private static ComponentKey GetComponentKey(Type componentType)
-    {
-        var attr = componentType.GetCustomAttribute<ComponentKeyAttribute>();
-        if (attr == null)
-        {
-            return Throw.Ex<ComponentKey>(
-                $"Component '{componentType}' should be " +
-                $"marked with '{nameof(ComponentKeyAttribute)}' attribute");
-        }
-
-        return attr.Key;
-    }
-
-    private static Func<IComponent> GetNewInstanceFunc(Type componentType)
-    {
-        var constructor = componentType.GetParamLessConstructor();
-        return new Func<IComponent>(() => 
-        {
-            return (IComponent)constructor.Invoke(null);
-        });
     }
 
     private static ComponentInfo ComponentNotFound(Type t)
