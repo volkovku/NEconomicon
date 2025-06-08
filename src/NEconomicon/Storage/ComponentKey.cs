@@ -8,7 +8,7 @@ public readonly struct ComponentKey : IEquatable<ComponentKey>
     /// <summary>
     /// Initializes a new instance of component key.
     /// </summary>
-    public ComponentKey(int value)
+    public ComponentKey(ulong value)
     {
         Value = value;
     }
@@ -16,7 +16,7 @@ public readonly struct ComponentKey : IEquatable<ComponentKey>
     /// <summary>
     /// A numeric representation of this component key.
     /// </summary>
-    public readonly int Value;
+    public readonly ulong Value;
 
     public bool Equals(ComponentKey other)
     {

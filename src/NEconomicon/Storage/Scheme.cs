@@ -26,9 +26,69 @@ public sealed class Scheme
         return componentInfo;
     }
 
+    public ComponentInfo RegisterComponent<TComponent>()
+        where TComponent : IComponent<TComponent>, new()
+    {
+        return RegisterComponent(typeof(TComponent));
+    }
+
+    public ComponentInfo RegisterComponent(Type componentType)
+    {
+        if (!componentType.ImplementsInterface(typeof(IComponent<>)))
+        {
+            return Throw.Ex<ComponentInfo>(
+                $"Can't register component of type '{componentType}',"
+                + $" it should implement '{typeof(IComponent<>)}' interface.");
+        }
+
+        var componentKey = GetComponentKey(componentType);
+        if (_componentsByKey.TryGetValue(componentKey, out var collition))
+        {
+            return Throw.Ex<ComponentInfo>(
+                "Component with same key already registered ("
+                + $"key={componentKey},"
+                + $"type={componentType})");
+        }
+
+        var newInstanceFunc = GetNewInstanceFunc(componentType);
+        var cleanUpFunc = new Action<IComponent>(comp => {});
+        var componentInfo = new ComponentInfo(
+            componentKey, 
+            newInstanceFunc, 
+            cleanUpFunc
+        );
+
+        _componentsByKey.Add(componentKey, componentInfo);
+        _componentsByType.Add(componentType, componentInfo);
+        
+        return componentInfo;
+    }
+
+    private static ComponentKey GetComponentKey(Type componentType)
+    {
+        var attr = componentType.GetCustomAttribute<ComponentKeyAttribute>();
+        if (attr == null)
+        {
+            return Throw.Ex<ComponentKey>(
+                $"Component '{componentType}' should be " +
+                $"marked with '{nameof(ComponentKeyAttribute)}' attribute");
+        }
+
+        return attr.Key;
+    }
+
+    private static Func<IComponent> GetNewInstanceFunc(Type componentType)
+    {
+        var constructor = componentType.GetParamLessConstructor();
+        return new Func<IComponent>(() => 
+        {
+            return (IComponent)constructor.Invoke(null);
+        });
+    }
+
     private static ComponentInfo ComponentNotFound(Type t)
     {
-        throw new InvalidOperationException(
+        return Throw.Ex<ComponentInfo>(
             $"Component with type '{t.Name}' not registered in scheme.");
     }
 }
