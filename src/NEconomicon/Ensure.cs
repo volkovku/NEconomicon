@@ -16,4 +16,18 @@ public static class Ensure
             ? Throw.ArgNull<T>(name)
             : value;
     }
+
+    /// <summary>
+    /// Ensures that specified value is not null or whitespace.
+    /// </summary>
+    public static string NotBlank(string value, string name)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Throw.Ex<string>(
+                $"Argment '{name}' can't be null or whitespace.");
+        }
+
+        return value;
+    }
 }

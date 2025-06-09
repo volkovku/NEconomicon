@@ -75,6 +75,9 @@ internal sealed class EntityData
         return Opt.None<TComponent>();
     }
 
+    /// <summary>
+    /// Gets exists component or adds new.
+    /// </summary>
     internal TComponent GetOrAdd<TComponent>(out bool isNew)
         where TComponent : IComponent
     {

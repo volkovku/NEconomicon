@@ -36,7 +36,11 @@ public sealed class Storage
     {
         var entityId = _nextEntityId;
         _nextEntityId = _nextEntityId.Next();
+        return CreateEntityInternal(entityId);
+    }
 
+    private Entity CreateEntityInternal(EntityId entityId)
+    {
         if (_entityDataPool.TryPop(out var entityData))
         {
             entityData.Reactivate(entityId);
