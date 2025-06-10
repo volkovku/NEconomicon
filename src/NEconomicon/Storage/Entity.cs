@@ -22,17 +22,41 @@ public struct Entity
     public readonly EntityId Id;
 
     /// <summary>
+    /// Returns count of components associated with this entity.
+    /// </summary>
+    public int ComponentsCount => _data.ComponentsCount;
+
+    /// <summary>
     /// Determines is this entity is alive.
     /// </summary>
     public bool IsAlive()
     {
         return _data.IsAlive && _data.EntityId == Id;
     }
+    /// <summary>
+    /// Gets exists component or adds new.
+    /// </summary>
+    public TComponent GetOrAdd<TComponent>()
+        where TComponent : IComponent<TComponent>
+    {
+        return GetOrAdd<TComponent>(out _);
+    }
+
+    /// <summary>
+    /// Gets exists component or adds new.
+    /// </summary>
+    public TComponent GetOrAdd<TComponent>(out bool isNew)
+        where TComponent : IComponent<TComponent>
+    {
+        EnsureIsAlive(nameof(GetOrAdd));
+        return _data.GetOrAdd<TComponent>(out isNew);
+    }
 
     /// <summary>
     /// Returns some component if found, otherwise none.
     /// </summary>
-    public Opt<TComponent> Find<TComponent>() where TComponent : IComponent
+    public Opt<TComponent> Find<TComponent>()
+        where TComponent : IComponent<TComponent>
     {
         EnsureIsAlive(nameof(Find));
         return _data.Find<TComponent>();
