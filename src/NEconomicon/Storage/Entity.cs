@@ -36,19 +36,19 @@ public struct Entity
     /// <summary>
     /// Gets exists component or adds new.
     /// </summary>
-    public TComponent GetOrAdd<TComponent>()
-        where TComponent : IComponent<TComponent>
+    public TComponent Get<TComponent>()
+        where TComponent : IComponent<TComponent>, new()
     {
-        return GetOrAdd<TComponent>(out _);
+        return Get<TComponent>(out _);
     }
 
     /// <summary>
     /// Gets exists component or adds new.
     /// </summary>
-    public TComponent GetOrAdd<TComponent>(out bool isNew)
-        where TComponent : IComponent<TComponent>
+    public TComponent Get<TComponent>(out bool isNew)
+        where TComponent : IComponent<TComponent>, new()
     {
-        EnsureIsAlive(nameof(GetOrAdd));
+        EnsureIsAlive(nameof(Get));
         return _data.GetOrAdd<TComponent>(out isNew);
     }
 
@@ -56,10 +56,18 @@ public struct Entity
     /// Returns some component if found, otherwise none.
     /// </summary>
     public Opt<TComponent> Find<TComponent>()
-        where TComponent : IComponent<TComponent>
+        where TComponent : IComponent<TComponent>, new()
     {
         EnsureIsAlive(nameof(Find));
         return _data.Find<TComponent>();
+    }
+
+    /// <summary>
+    /// Returns true if this entity has specified component.
+    public bool Has<TComponent>()
+        where TComponent : IComponent<TComponent>, new()
+    {
+        return Find<TComponent>().HasValue;
     }
 
     private void EnsureIsAlive(string context)

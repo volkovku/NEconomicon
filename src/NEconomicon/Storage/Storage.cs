@@ -149,6 +149,11 @@ public sealed class Storage
         where TComponent : IComponent
     {
         var compInfo = Scheme.GetComponentInfo(typeof(TComponent));
+        if (compInfo.FlagInstance.TryGet(out var flag))
+        {
+            return ((TComponent)flag, compInfo);
+        }
+
         if (!_componentsPool.TryGetValue(compInfo.Key, out var pool))
         {
             pool = new Stack<IComponent>();
@@ -170,6 +175,11 @@ public sealed class Storage
     internal void ReleaseComponent(IComponent comp)
     {
         var compInfo = Scheme.GetComponentInfo(comp.GetType());
+        if (compInfo.FlagInstance.HasValue)
+        {
+            return;
+        }
+
         if (!_componentsPool.TryGetValue(compInfo.Key, out var pool))
         {
             pool = new Stack<IComponent>();

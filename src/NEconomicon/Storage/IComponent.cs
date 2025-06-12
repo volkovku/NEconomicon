@@ -4,7 +4,7 @@ namespace NEconomicon;
 /// Marks class as NEconomicon storage component.
 /// </summary>
 public interface IComponent<TComponent> : IComponent
-    where TComponent : IComponent<TComponent>
+    where TComponent : IComponent<TComponent>, new()
 {
 }
 

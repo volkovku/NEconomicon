@@ -36,13 +36,13 @@ public sealed class Scheme
     {
         var componentInfo = ComponentInfo.Create(componentType);
         var componentKey = componentInfo.Key;
-        if (_componentsByKey.TryGetValue(componentKey, out var collition))
+        if (_componentsByKey.TryGetValue(componentKey, out var collision))
         {
             return Throw.Ex<ComponentInfo>(
                 "Component with same key already registered ("
                 + $"key={componentKey}, "
                 + $"new_type={componentType}, "
-                + $"old_type={collition.Type})");
+                + $"old_type={collision.Type})");
         }
 
         _componentsByKey.Add(componentKey, componentInfo);

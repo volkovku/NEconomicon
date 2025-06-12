@@ -6,7 +6,7 @@ namespace NEconomicon.Storage;
 internal sealed class EntityData
 {
     /// <summary>
-    /// A sheme of registered components.
+    /// A scheme of registered components.
     /// </summary>
     internal readonly Storage Storage;
 
@@ -32,7 +32,7 @@ internal sealed class EntityData
 
     /// <summary>
     /// Initializes a new instance of entity data.
-    /// </summarya
+    /// </summary>
     internal EntityData(Storage storage, EntityId entityId)
     {
         Storage = storage;
@@ -56,7 +56,7 @@ internal sealed class EntityData
     /// </summary>
     internal void Deactivate()
     {
-        RealeaseComponents();
+        ReleaseComponents();
         IsAlive = false;
     }
 
@@ -94,7 +94,7 @@ internal sealed class EntityData
         return newComp;
     }
 
-    private void RealeaseComponents()
+    private void ReleaseComponents()
     {
         foreach (var (_, comp) in Components)
         {

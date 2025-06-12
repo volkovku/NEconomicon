@@ -33,30 +33,30 @@ public class StorageTests
         var storage = CreateStorage();
 
         var entity1 = storage.CreateEntity();
-        entity1.GetOrAdd<Character>().BlueprintId = "monk";
-        entity1.GetOrAdd<Level>().Value = 1;
-        entity1.GetOrAdd<Exp>().Value = 0;
+        entity1.Get<Character>().BlueprintId = "monk";
+        entity1.Get<Level>().Value = 1;
+        entity1.Get<Exp>().Value = 0;
 
         Assert.That(storage.EntitiesCount, Is.EqualTo(1));
 
         var entity2 = storage.CreateEntity();
-        entity2.GetOrAdd<Character>().BlueprintId = "mage";
-        entity2.GetOrAdd<Level>().Value = 2;
-        entity2.GetOrAdd<Exp>().Value = 100;
+        entity2.Get<Character>().BlueprintId = "mage";
+        entity2.Get<Level>().Value = 2;
+        entity2.Get<Exp>().Value = 100;
 
         Assert.That(storage.EntitiesCount, Is.EqualTo(2));
 
         Assert.That(entity1.Id, Is.EqualTo(new EntityId(0)));
         Assert.That(entity1.IsAlive);
-        Assert.That(entity1.GetOrAdd<Character>().BlueprintId, Is.EqualTo("monk"));
-        Assert.That(entity1.GetOrAdd<Level>().Value, Is.EqualTo(1));
-        Assert.That(entity1.GetOrAdd<Exp>().Value, Is.EqualTo(0));
+        Assert.That(entity1.Get<Character>().BlueprintId, Is.EqualTo("monk"));
+        Assert.That(entity1.Get<Level>().Value, Is.EqualTo(1));
+        Assert.That(entity1.Get<Exp>().Value, Is.EqualTo(0));
 
         Assert.That(entity2.Id, Is.EqualTo(new EntityId(1)));
         Assert.That(entity2.IsAlive);
-        Assert.That(entity2.GetOrAdd<Character>().BlueprintId, Is.EqualTo("mage"));
-        Assert.That(entity2.GetOrAdd<Level>().Value, Is.EqualTo(2));
-        Assert.That(entity2.GetOrAdd<Exp>().Value, Is.EqualTo(100));
+        Assert.That(entity2.Get<Character>().BlueprintId, Is.EqualTo("mage"));
+        Assert.That(entity2.Get<Level>().Value, Is.EqualTo(2));
+        Assert.That(entity2.Get<Exp>().Value, Is.EqualTo(100));
     }
 
     [Test]
@@ -65,13 +65,13 @@ public class StorageTests
         var storage = CreateStorage();
 
         var entity1 = storage.CreateEntity();
-        var characterComp = entity1.GetOrAdd<Character>();
+        var characterComp = entity1.Get<Character>();
         characterComp.BlueprintId = "monk";
 
-        var levelComp = entity1.GetOrAdd<Level>();
+        var levelComp = entity1.Get<Level>();
         levelComp.Value = 1;
 
-        var expComp = entity1.GetOrAdd<Exp>();
+        var expComp = entity1.Get<Exp>();
         expComp.Value = 0;
 
         storage.DestroyEntity(entity1);
@@ -79,9 +79,14 @@ public class StorageTests
 
         var entity2 = storage.CreateEntity();
         Assert.That(entity2.ComponentsCount, Is.EqualTo(0));
-        Assert.That(ReferenceEquals(entity2.GetOrAdd<Character>(), characterComp));
-        Assert.That(ReferenceEquals(entity2.GetOrAdd<Level>(), levelComp));
-        Assert.That(ReferenceEquals(entity2.GetOrAdd<Exp>(), expComp));
+        Assert.That(ReferenceEquals(entity2.Get<Character>(), characterComp));
+        Assert.That(ReferenceEquals(entity2.Get<Level>(), levelComp));
+        Assert.That(ReferenceEquals(entity2.Get<Exp>(), expComp));
+
+        // Components values should be reset to initial
+        Assert.That(entity2.Get<Character>().BlueprintId, Is.EqualTo(""));
+        Assert.That(entity2.Get<Level>().Value, Is.EqualTo(0));
+        Assert.That(entity2.Get<Exp>().Value, Is.EqualTo(0));
     }
 
     private static Storage CreateStorage()

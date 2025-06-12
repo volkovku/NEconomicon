@@ -24,7 +24,7 @@ public static class Reflection
         if (c == null)
         {
             return Throw.Ex<ConstructorInfo>(
-                "Paramter less constructor not found: (" +
+                "Parameter less constructor not found: (" +
                 $"type={type})");
         }
 

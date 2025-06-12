@@ -25,7 +25,7 @@ public static class Ensure
         if (string.IsNullOrWhiteSpace(value))
         {
             return Throw.Ex<string>(
-                $"Argment '{name}' can't be null or whitespace.");
+                $"Argument '{name}' can't be null or whitespace.");
         }
 
         return value;
