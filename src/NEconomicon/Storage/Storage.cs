@@ -8,6 +8,7 @@ public sealed class Storage
     private readonly Dictionary<EntityId, EntityData> _entitiesById;
     private readonly Stack<EntityData> _entityDataPool;
     private readonly Dictionary<ComponentKey, Stack<IComponent>> _componentsPool;
+    private readonly QueryCollection _queryCollection;
     private EntityId _nextEntityId;
     
     /// <storage>
@@ -20,6 +21,7 @@ public sealed class Storage
         _entitiesById = new Dictionary<EntityId, EntityData>();
         _entityDataPool = new Stack<EntityData>();
         _componentsPool = new Dictionary<ComponentKey, Stack<IComponent>>();
+        _queryCollection = new QueryCollection(this);
         _nextEntityId = nextEntityId ?? default;
         Scheme = scheme;
     }
@@ -129,6 +131,15 @@ public sealed class Storage
         return true;
     }
 
+    /// <summary>
+    /// Creates query with specified conditions.
+    /// </summary>
+    public Query CreateQuery(Func<QueryBuilderEntryPoint, IQueryBuilder> queryBuilder)
+    {
+        var entryPoint = new QueryBuilderEntryPoint(this);
+        return queryBuilder(entryPoint).Build();
+    }
+
     private Entity CreateEntityInternal(EntityId entityId)
     {
         if (_entityDataPool.TryPop(out var entityData))
@@ -143,6 +154,11 @@ public sealed class Storage
         _entitiesById.Add(entityId, entityData);
 
         return new Entity(entityId, entityData);
+    }
+
+    internal IEnumerable<EntityData> EnumerateEntitiesInternal()
+    {
+        return _entitiesById.Values;
     }
 
     internal (TComponent, ComponentInfo) GetComponent<TComponent>()
@@ -188,5 +204,29 @@ public sealed class Storage
 
         compInfo.CleanUp(comp);
         pool.Push(comp);
+    }
+
+    internal Query RegisterQuery(BitSet include, BitSet exclude)
+    {
+        var queryKey = new QueryKey(include, exclude);
+        var query = _queryCollection.RegisterQuery(queryKey);
+        return query;
+    }
+
+    internal void OnComponentAdd(
+        EntityId entityId,
+        EntityData entityData,
+        ComponentInfo compInfo,
+        IComponent component)
+    {
+        _queryCollection.OnComponentAdd(entityId, entityData, compInfo, component);
+    }
+
+    internal void OnComponentRemove(
+        EntityId entityId,
+        EntityData entityData,
+        ComponentInfo compInfo)
+    {
+        _queryCollection.OnComponentRemove(entityId, entityData, compInfo);
     }
 }

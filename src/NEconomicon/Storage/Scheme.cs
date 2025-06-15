@@ -34,7 +34,8 @@ public sealed class Scheme
 
     public ComponentInfo RegisterComponent(Type componentType)
     {
-        var componentInfo = ComponentInfo.Create(componentType);
+        var componentIndex = _componentsByKey.Count;
+        var componentInfo = ComponentInfo.Create(componentIndex, componentType);
         var componentKey = componentInfo.Key;
         if (_componentsByKey.TryGetValue(componentKey, out var collision))
         {

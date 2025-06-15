@@ -14,7 +14,7 @@ public sealed class ComponentInfo
     /// <summary>
     /// Creates info of component of specified type.
     /// </summary>
-    public static ComponentInfo Create(Type componentType)
+    public static ComponentInfo Create(int index, Type componentType)
     {
         if (!componentType.ImplementsInterface(typeof(IComponent<>)))
         {
@@ -38,6 +38,7 @@ public sealed class ComponentInfo
         var cleanUpFunc = CreateCleanUpFunc(componentFields);
 
         var componentInfo = new ComponentInfo(
+            index,
             componentKey,
             componentType,
             componentFields,
@@ -49,6 +50,7 @@ public sealed class ComponentInfo
     }
 
     private ComponentInfo(
+        int index,
         ComponentKey key,
         Type type,
         ComponentField[] fields,
@@ -56,6 +58,7 @@ public sealed class ComponentInfo
         Func<IComponent> fNew,
         Action<IComponent> fCleanUp)
     {
+        Index = index;
         Key = key;
         Type = type;
         FlagInstance = flagInstance;
@@ -63,6 +66,11 @@ public sealed class ComponentInfo
         _new = fNew;
         _cleanUp = fCleanUp;
     }
+
+    /// <summary>
+    /// An internal index in storage scheme.
+    /// </summary>
+    public readonly int Index;
 
     /// <summary>
     /// Component serialization key.

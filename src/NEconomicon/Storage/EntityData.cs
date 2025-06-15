@@ -5,6 +5,8 @@ namespace NEconomicon.Storage;
 /// </summary>
 internal sealed class EntityData
 {
+    private readonly HashSet<Query> _queries = new();
+
     /// <summary>
     /// A scheme of registered components.
     /// </summary>
@@ -18,7 +20,12 @@ internal sealed class EntityData
     /// <summary>
     /// A collection of components associated with this entity.
     /// </summary>
-    Dictionary<ComponentKey, IComponent> Components;
+    internal readonly Dictionary<ComponentKey, IComponent> Components;
+
+    /// <summary>
+    /// A fast check components bit set.
+    /// </summary>
+    internal readonly BitSet ComponentsBitSet = BitSet.Empty();
 
     /// <summary>
     /// Current count of components in this entity.
@@ -57,6 +64,7 @@ internal sealed class EntityData
     internal void Deactivate()
     {
         ReleaseComponents();
+        ComponentsBitSet.ClearAll();
         IsAlive = false;
     }
 
@@ -89,9 +97,37 @@ internal sealed class EntityData
 
         var (newComp, compInfo) = Storage.GetComponent<TComponent>();
         Components.Add(compInfo.Key, newComp);
+        ComponentsBitSet.Set(compInfo.Index);
+        Storage.OnComponentAdd(EntityId, this, compInfo, comp);
 
         isNew = true;
         return newComp;
+    }
+
+    internal bool Remove<TComponent>()
+    {
+        var compInfo = Storage.Scheme.GetComponentInfo(typeof(TComponent));
+        if (!Components.TryGetValue(compInfo.Key, out var comp))
+        {
+            return false;
+        }
+
+        Storage.ReleaseComponent(comp);
+        Components.Remove(compInfo.Key);
+        ComponentsBitSet.Clear(compInfo.Index);
+        Storage.OnComponentRemove(EntityId, this, compInfo);
+
+        return true;
+    }
+
+    internal void AddQuery(Query query)
+    {
+        _queries.Add(query);
+    }
+
+    internal void RemoveQuery(Query query)
+    {
+        _queries.Remove(query);
     }
 
     private void ReleaseComponents()
@@ -102,5 +138,15 @@ internal sealed class EntityData
         }
 
         Components.Clear();
+    }
+
+    private void ReleaseQueries()
+    {
+        foreach (var query in _queries)
+        {
+            query.Remove(this);
+        }
+
+        _queries.Clear();
     }
 }

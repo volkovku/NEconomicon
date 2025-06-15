@@ -14,7 +14,7 @@ public class ComponentInfoTests
 
     private static void CheckCompInfo(Type compType, ulong requiredKey)
     {
-        var compInfo = ComponentInfo.Create(compType);
+        var compInfo = ComponentInfo.Create(0, compType);
         Assert.That(compInfo.Key, Is.EqualTo(new ComponentKey(requiredKey)));
         Assert.That(compInfo.Type, Is.EqualTo(compType));
         Assert.That(compInfo.Name, Is.EqualTo(compType.Name));
