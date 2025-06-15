@@ -64,10 +64,21 @@ public struct Entity
 
     /// <summary>
     /// Returns true if this entity has specified component.
+    /// </summary>
     public bool Has<TComponent>()
         where TComponent : IComponent<TComponent>, new()
     {
         return Find<TComponent>().HasValue;
+    }
+
+    /// <summary>
+    /// Returns true if specified component was removed; otherwise false.
+    /// </summary>
+    public bool Remove<TComponent>()
+        where TComponent : IComponent<TComponent>, new()
+    {
+        EnsureIsAlive(nameof(Remove));
+        return _data.Remove<TComponent>();
     }
 
     private void EnsureIsAlive(string context)

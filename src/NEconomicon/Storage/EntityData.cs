@@ -64,6 +64,7 @@ internal sealed class EntityData
     internal void Deactivate()
     {
         ReleaseComponents();
+        ReleaseQueries();
         ComponentsBitSet.ClearAll();
         IsAlive = false;
     }

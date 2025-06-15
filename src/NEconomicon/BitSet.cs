@@ -1,6 +1,6 @@
 namespace NEconomicon;
 
-public struct BitSet : IEquatable<BitSet>
+public sealed class BitSet : IEquatable<BitSet>
 {
     private const int LongBitsCount = 64;
     private const int F1Upper = LongBitsCount;
@@ -27,21 +27,20 @@ public struct BitSet : IEquatable<BitSet>
 
     public static BitSet Empty()
     {
-        return new BitSet();
+        return new BitSet(0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL);
     }
 
     public static BitSet Full()
     {
-        var bitSet = new BitSet();
-        bitSet._f1 = ulong.MaxValue;
-        bitSet._f2 = ulong.MaxValue;
-        bitSet._f3 = ulong.MaxValue;
-        bitSet._f4 = ulong.MaxValue;
-        bitSet._f5 = ulong.MaxValue;
-        bitSet._f6 = ulong.MaxValue;
-        bitSet._f7 = ulong.MaxValue;
-        bitSet._f8 = ulong.MaxValue;
-        return bitSet;
+        return new BitSet(
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue,
+            ulong.MaxValue);
     }
 
     public BitSet(ulong f1, ulong f2, ulong f3, ulong f4, ulong f5, ulong f6, ulong f7, ulong f8)
@@ -224,20 +223,25 @@ public struct BitSet : IEquatable<BitSet>
             || (_f8 & other._f8) != 0UL;
     }
 
-    public bool Equals(BitSet other)
+    public bool Equals(BitSet? other)
     {
-        return _f1 == other._f1
-            && _f2 == other._f2
-            && _f3 == other._f3
-            && _f4 == other._f4
-            && _f5 == other._f5
-            && _f6 == other._f6
-            && _f7 == other._f7
-            && _f8 == other._f8;
+        return _f1 == other!._f1
+            && _f2 == other!._f2
+            && _f3 == other!._f3
+            && _f4 == other!._f4
+            && _f5 == other!._f5
+            && _f6 == other!._f6
+            && _f7 == other!._f7
+            && _f8 == other!._f8;
     }
 
     public override bool Equals(object? other)
     {
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
         if (ReferenceEquals(null, other))
         {
             return false;
