@@ -16,19 +16,43 @@ public readonly struct Entity(EntityId id, EntityDataStorage storage)
     public EntityId Id => id;
 
     /// <summary>
+    /// Checks if this entity has the specified component type.
+    /// </summary>
+    /// <typeparam name="TComponent">A component type to check.</returns>
+    /// <returns>Returns true if entity has the component; otherwise false.</returns>
+    public bool Has<TComponent>() where TComponent : Component<TComponent>, new()
+    {
+        return storage.HasComponent(Id, Component<TComponent>.D.Id);
+    }
+
+    /// <summary>
     /// Sets component to this entity if not exists. Otherwise do nothing.
     /// </summary>
     /// <typeparam name="TComponent">A component to set.</typeparam>
     /// <returns>Returns true if component was set; otherwise false.</returns>
-    public bool Set<TComponent>()
+    public bool Set<TComponent>() where TComponent : Component<TComponent>, new()
     {
-        return storage.AddComponent(Id, ComponentLookup<TComponent>.Description.Id);
+        return storage.AddComponent(Id, Component<TComponent>.D.Id);
     }
 
-    public void Set<TComponent>(Func<TComponent, Property<int>> property, int value)
+    /// <summary>
+    /// Gets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to get its value.</param>
+    /// <returns>Returns the property value; or 0 if not found.</returns>
+    public int Get(Property<int> property)
     {
-        var componentId = ComponentLookup<TComponent>.Description.Id;
-        var propertyId = property(ComponentLookup<TComponent>.Instance).Id;
-        storage.SetPropertyValue(Id, componentId, propertyId, value);
+        return storage.TryGetPropertyValue(Id, property.ComponentId, property.Id, out var result) ? (int)result : 0;
     }
+
+    /// <summary>
+    /// Sets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A a property to set its value.</param>
+    /// <param name="value">A value to set.</param>
+    public void Set(Property<int> property, int value)
+    {
+        storage.SetPropertyValue(Id, property.ComponentId, property.Id, value);
+    }
+
 }

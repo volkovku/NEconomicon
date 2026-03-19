@@ -60,7 +60,14 @@ public class EntityDataStorage
         _entryValueBackup = new Aos<long>(initialCapacity, new IncGrowStrategy<long>(growSize));
 
         _nextEntityId = 1;
-        _entryPackedId.AddValue(0); // 0 idx reserved as none placeholder
+
+        // 0 idx reserved as none placeholder
+        _entryPackedId.AddValue(0); 
+        _entryPrevIdx.AddValue(0);
+        _entryNextIdx.AddValue(0);
+        _entryFlags.AddValue(0);
+        _entryValue.AddValue(0);
+        _entryValueBackup.AddValue(0);
 
         _txStarted = false;
         _txAffectedIndexes = [];

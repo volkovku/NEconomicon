@@ -1,10 +1,84 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Collections.Generic;
 using NEconomicon.Exceptions;
 
 namespace NEconomicon.Model;
 
-public sealed class Component(ushort id, string name, IReadOnlyCollection<IProperty> properties)
+public abstract class Component<TComponent> where TComponent : Component<TComponent>, new()
+{
+    private static readonly Exception? _initException;
+    private static readonly TComponent? _instance;
+    private static readonly ComponentDescription? _description;
+
+    static Component()
+    {
+        var cmpType = typeof(TComponent);
+        var cmpAttr = cmpType.GetCustomAttribute<ComponentAttribute>();
+        if (cmpAttr == null)
+        {
+            Throw.ComponentShouldBeMarkedWithComponentAttribute(cmpType, out _initException);
+            return;
+        }
+
+        var componentId = cmpAttr.Id;
+        var instance = Activator.CreateInstance<TComponent>()!;
+        var properties = new List<IProperty>();
+        foreach (var prop in cmpType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            var propAttr = prop.GetCustomAttribute<PropertyAttribute>();
+            if (propAttr == null)
+            {
+                Throw.ComponentPropertyShouldBeMarkedWithPropertyAttribute(prop.Name, out _initException);
+                return;
+            }
+
+            var propertyTypeArg = prop.PropertyType.GenericTypeArguments[0];
+            var propertyType = typeof(Property<>).MakeGenericType(propertyTypeArg);
+            var propertyValue = Activator.CreateInstance(
+                propertyType,
+                propAttr.Id,
+                componentId,
+                propAttr.Name ?? prop.Name
+            );
+
+            prop.SetValue(instance, propertyValue);
+            properties.Add((IProperty)propertyValue!);
+        }
+
+        _initException = null;
+        _instance = instance;
+        _description = new ComponentDescription(componentId, cmpAttr.Name ?? cmpType.Name, properties);
+    }
+
+    public static TComponent _
+    {
+        get
+        {
+            if (_initException != null)
+            {
+                throw _initException;
+            }
+
+            return _instance!;
+        }
+    }
+
+    public static ComponentDescription D
+    {
+        get
+        {
+            if (_initException != null)
+            {
+                throw _initException;
+            }
+
+            return _description!;
+        }
+    }
+}
+
+public sealed class ComponentDescription(ushort id, string name, IReadOnlyCollection<IProperty> properties)
 {
     public readonly ushort Id = id;
     public readonly string Name = name;
@@ -18,44 +92,83 @@ public sealed class ComponentAttribute(ushort id, string? name = null) : Attribu
     public readonly string? Name = name;
 }
 
-public static class ComponentLookup<TComponent> where TComponent : new()
+public static class ComponentLookup<TComponent>
 {
-    internal static readonly TComponent Instance;
-    internal static readonly Component Description;
+    private static readonly Exception? _initException;
+    private static readonly TComponent? _instance;
+    private static readonly ComponentDescription? _description;
+
+    public static TComponent Instance
+    {
+        get
+        {
+            if (_initException != null)
+            {
+                throw _initException;
+            }
+
+            return _instance!;
+        }
+    }
+
+    public static ComponentDescription Description
+    {
+        get
+        {
+            if (_initException != null)
+            {
+                throw _initException;
+            }
+
+            return _description!;
+        }
+    }
 
     static ComponentLookup()
     {
-        Instance = new TComponent();
-
         var cmpType = typeof(TComponent);
         var cmpAttr = cmpType.GetCustomAttribute<ComponentAttribute>();
         if (cmpAttr == null)
         {
-            Throw.ComponentShouldBeMarkedWithComponentAttribute(cmpType);
+            Throw.ComponentShouldBeMarkedWithComponentAttribute(cmpType, out _initException);
             return;
         }
 
+        var instance = Activator.CreateInstance<TComponent>()!;
+        var properties = new List<IProperty>();
+        foreach (var prop in cmpType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            var propAttr = prop.GetCustomAttribute<PropertyAttribute>();
+            if (propAttr == null)
+            {
+                Throw.ComponentPropertyShouldBeMarkedWithPropertyAttribute(prop.Name, out _initException);
+                return;
+            }
 
+            var propertyTypeArg = prop.PropertyType.GenericTypeArguments[0];
+            var propertyType = typeof(Property<>).MakeGenericType(propertyTypeArg);
+            var propertyValue = Activator.CreateInstance(propertyType, propAttr.Id, propAttr.Name ?? prop.Name);
+            prop.SetValue(instance, propertyValue);
+            properties.Add((IProperty)propertyValue!);
+        }
+
+        _initException = null;
+        _description = new ComponentDescription(cmpAttr.Id, cmpAttr.Name ?? cmpType.Name, properties);
+        _instance = instance;
     }
 }
 
-public static class ComponentLookup
+public sealed class Property<T>(byte id, ushort componentId, string name) : IProperty
 {
-    private static readonly 
-}
-
-public sealed class Property<T>(byte id, string name, Component component) : IProperty
-{
-    public byte Id => id;
-    public string Name => name;
-    public Component Component => component;
+    public byte Id { get; } = id;
+    public ushort ComponentId { get; } = componentId;
+    public string Name { get; } = name;
 }
 
 public interface IProperty
 {
     byte Id { get; }
     string Name { get; }
-    Component Component { get; }
 }
 
 [AttributeUsage(AttributeTargets.Property)]
