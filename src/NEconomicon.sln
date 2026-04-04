@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEconomicon", "NEconomicon\NEconomicon.csproj", "{FDA61008-5C92-42E5-9E76-2D47B7F743EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEconomicon.Tests", "NEconomicon.Tests\NEconomicon.Tests.csproj", "{848FDD9B-B0CD-42FE-8D93-2CCDD88E0754}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEconomicon.Tests", "..\test\NEconomicon.Tests\NEconomicon.Tests.csproj", "{4B15B170-5CB8-4F3A-B9CF-A66779FCE00D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +15,9 @@ Global
 		{FDA61008-5C92-42E5-9E76-2D47B7F743EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDA61008-5C92-42E5-9E76-2D47B7F743EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDA61008-5C92-42E5-9E76-2D47B7F743EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{848FDD9B-B0CD-42FE-8D93-2CCDD88E0754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{848FDD9B-B0CD-42FE-8D93-2CCDD88E0754}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{848FDD9B-B0CD-42FE-8D93-2CCDD88E0754}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{848FDD9B-B0CD-42FE-8D93-2CCDD88E0754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B15B170-5CB8-4F3A-B9CF-A66779FCE00D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B15B170-5CB8-4F3A-B9CF-A66779FCE00D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B15B170-5CB8-4F3A-B9CF-A66779FCE00D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B15B170-5CB8-4F3A-B9CF-A66779FCE00D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,14 +1,13 @@
-namespace NEconomicon.Tests.Storage;
-
 using NEconomicon.Model;
+
+namespace NEconomicon.Tests.Model;
 
 public class EntityDataStorageTests
 {
-    private EntityDataStorage CreateStorage()
-        => new EntityDataStorage(16, 8);
+    private EntityDataStorage CreateStorage() => new(16, 8);
 
     [Test]
-    public async Task NewEntity_ShouldCreateEntity_WhenTransactionStarted()
+    public void NewEntity_ShouldCreateEntity_WhenTransactionStarted()
     {
         var storage = CreateStorage();
 
@@ -20,12 +19,12 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetEntityById(entity.Id, out var loaded);
 
-        await Assert.That(found).IsTrue();
-        await Assert.That(entity.Id).IsEqualTo(loaded.Id);
+        Assert.That(found, Is.True);
+        Assert.That(entity.Id, Is.EqualTo(loaded.Id));
     }
 
     [Test]
-    public async Task NewEntity_ShouldRollback_WhenTransactionRolledBack()
+    public void NewEntity_ShouldRollback_WhenTransactionRolledBack()
     {
         var storage = CreateStorage();
 
@@ -37,11 +36,11 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetEntityById(entity.Id, out _);
 
-        await Assert.That(found).IsFalse();
+        Assert.That(found, Is.False);
     }
 
     [Test]
-    public async Task GetEntityById_ShouldReturnEntity_WhenExists()
+    public void GetEntityById_ShouldReturnEntity_WhenExists()
     {
         var storage = CreateStorage();
 
@@ -51,11 +50,11 @@ public class EntityDataStorageTests
 
         var loaded = storage.GetEntityById(entity.Id);
 
-        await Assert.That(entity.Id).IsEqualTo(loaded.Id);
+        Assert.That(entity.Id, Is.EqualTo(loaded.Id));
     }
 
     [Test]
-    public async Task RemoveEntity_ShouldMarkEntityRemoved()
+    public void RemoveEntity_ShouldMarkEntityRemoved()
     {
         var storage = CreateStorage();
 
@@ -65,12 +64,12 @@ public class EntityDataStorageTests
         storage.CommitTransaction();
 
         var found = storage.TryGetEntityById(entity.Id, out _);
-        await Assert.That(removed).IsTrue();
-        await Assert.That(found).IsFalse();
+        Assert.That(removed, Is.True);
+        Assert.That(found, Is.False);
     }
 
     [Test]
-    public async Task AddComponent_ShouldAddComponent()
+    public void AddComponent_ShouldAddComponent()
     {
         var storage = CreateStorage();
 
@@ -79,12 +78,12 @@ public class EntityDataStorageTests
         var added = storage.AddComponent(entity.Id, 5);
         storage.CommitTransaction();
 
-        await Assert.That(added).IsTrue();
-        await Assert.That(storage.HasComponent(entity.Id, 5)).IsTrue();
+        Assert.That(added, Is.True);
+        Assert.That(storage.HasComponent(entity.Id, 5), Is.True);
     }
 
     [Test]
-    public async Task RemoveComponent_ShouldRemoveComponent()
+    public void RemoveComponent_ShouldRemoveComponent()
     {
         var storage = CreateStorage();
 
@@ -94,12 +93,12 @@ public class EntityDataStorageTests
         var removed = storage.RemoveComponent(entity.Id, 5);
         storage.CommitTransaction();
 
-        await Assert.That(removed).IsTrue();
-        await Assert.That(storage.HasComponent(entity.Id, 5)).IsFalse();
+        Assert.That(removed, Is.True);
+        Assert.That(storage.HasComponent(entity.Id, 5), Is.False);
     }
 
     [Test]
-    public async Task SetPropertyValue_ShouldCreateProperty()
+    public void SetPropertyValue_ShouldCreateProperty()
     {
         var storage = CreateStorage();
         storage.StartTransaction();
@@ -110,12 +109,12 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetPropertyValue(entity.Id, 1, 2, out var value);
 
-        await Assert.That(found).IsTrue();
-        await Assert.That(value).IsEqualTo(100);
+        Assert.That(found, Is.True);
+        Assert.That(value, Is.EqualTo(100));
     }
 
     [Test]
-    public async Task SetPropertyValue_ShouldOverwriteProperty()
+    public void SetPropertyValue_ShouldOverwriteProperty()
     {
         var storage = CreateStorage();
 
@@ -127,12 +126,12 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetPropertyValue(entity.Id, 1, 1, out var value);
 
-        await Assert.That(found).IsTrue();
-        await Assert.That(value).IsEqualTo(20);
+        Assert.That(found, Is.True);
+        Assert.That(value, Is.EqualTo(20));
     }
 
     [Test]
-    public async Task RemoveComponent_ShouldRemoveProperties()
+    public void RemoveComponent_ShouldRemoveProperties()
     {
         var storage = CreateStorage();
         storage.StartTransaction();
@@ -143,11 +142,11 @@ public class EntityDataStorageTests
         storage.CommitTransaction();
 
         var found = storage.TryGetPropertyValue(entity.Id, 2, 1, out _);
-        await Assert.That(found).IsTrue();
+        Assert.That(found, Is.True);
     }
 
     [Test]
-    public async Task TransactionRollback_ShouldRestorePropertyValue()
+    public void TransactionRollback_ShouldRestorePropertyValue()
     {
         var storage = CreateStorage();
 
@@ -162,12 +161,12 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetPropertyValue(entity.Id, 1, 1, out var value);
 
-        await Assert.That(found).IsTrue();
-        await Assert.That(value).IsEqualTo(10);
+        Assert.That(found, Is.True);
+        Assert.That(value, Is.EqualTo(10));
     }
 
     [Test]
-    public async Task TransactionCommit_ShouldPersistPropertyValue()
+    public void TransactionCommit_ShouldPersistPropertyValue()
     {
         var storage = CreateStorage();
 
@@ -182,15 +181,15 @@ public class EntityDataStorageTests
 
         var found = storage.TryGetPropertyValue(entity.Id, 1, 1, out var value);
 
-        await Assert.That(found).IsTrue();
-        await Assert.That(value).IsEqualTo(50);
+        Assert.That(found, Is.True);
+        Assert.That(value, Is.EqualTo(50));
     }
 
     [Test]
-    public async Task TryGetEntity_ShouldReturnFalse_WhenEntityDoesNotExist()
+    public void TryGetEntity_ShouldReturnFalse_WhenEntityDoesNotExist()
     {
         var storage = CreateStorage();
         var found = storage.TryGetEntityById(new EntityId(999), out _);
-        await Assert.That(found).IsFalse();
+        Assert.That(found, Is.False);
     }
 }

@@ -6,7 +6,7 @@ namespace NEconomicon.Model;
 /// <summary>
 /// Defines component meta-data.
 /// </summary>
-/// <typeparam name="TComponent">A type of definied component.</typeparam>
+/// <typeparam name="TComponent">A type of defined component.</typeparam>
 public abstract class Component<TComponent> where TComponent : Component<TComponent>, new()
 {
     // ReSharper disable once StaticMemberInGenericType
@@ -19,14 +19,20 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
     private static readonly ComponentDescription? Description;
 
     /// <summary>
-    /// Gets an instance of component defintion.
+    /// Gets an instance of component definition.
     /// </summary>
+#pragma warning disable CA1000
+#pragma warning disable CA1707
     public static TComponent _ => InitException != null ? throw InitException : Instance!;
+#pragma warning restore CA1707
+#pragma warning restore CA1000
 
     /// <summary>
     /// Gets unified description of this component.
     /// </summary>
+#pragma warning disable CA1000
     public static ComponentDescription D => InitException != null ? throw InitException : Description!;
+#pragma warning restore CA1000
 
     static Component()
     {
@@ -41,25 +47,25 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
         var componentId = cmpAttr.Id;
         var instance = Activator.CreateInstance<TComponent>();
         var properties = new List<IProperty>();
-        foreach (var prop in cmpType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var field in cmpType.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
-            var propAttr = prop.GetCustomAttribute<PropertyAttribute>();
+            var propAttr = field.GetCustomAttribute<PropertyAttribute>();
             if (propAttr == null)
             {
-                Throw.ComponentPropertyShouldBeMarkedWithPropertyAttribute(prop.Name, out InitException);
+                Throw.ComponentPropertyShouldBeMarkedWithPropertyAttribute(field.Name, out InitException);
                 return;
             }
 
-            var propertyTypeArg = prop.PropertyType.GenericTypeArguments[0];
+            var propertyTypeArg = field.FieldType.GenericTypeArguments[0];
             var propertyType = typeof(Property<>).MakeGenericType(propertyTypeArg);
             var propertyValue = Activator.CreateInstance(
                 propertyType,
                 propAttr.Id,
                 componentId,
-                propAttr.Name ?? prop.Name
+                propAttr.Name ?? field.Name
             );
 
-            prop.SetValue(instance, propertyValue);
+            field.SetValue(instance, propertyValue);
             properties.Add((IProperty)propertyValue!);
         }
 

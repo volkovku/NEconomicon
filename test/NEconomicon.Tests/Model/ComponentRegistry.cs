@@ -16,7 +16,7 @@ public class ComponentRegistryTests
     }
 
     [Test]
-    public async Task ComponentRegistry_ShouldRegisterComponent()
+    public void ComponentRegistry_ShouldRegisterComponent()
     {
     }
 }

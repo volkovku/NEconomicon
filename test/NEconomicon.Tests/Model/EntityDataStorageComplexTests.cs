@@ -1,7 +1,7 @@
-namespace NEconomicon.Tests.Storage;
-
 using NEconomicon.Model;
 using PropertyAttribute = NEconomicon.Model.PropertyAttribute;
+
+namespace NEconomicon.Tests.Model;
 
 public class EntityDataStorageComplexTests
 {
@@ -16,7 +16,7 @@ public class EntityDataStorageComplexTests
     }
 
     [Test]
-    public async Task EntityDataStorageComplexTest()
+    public void EntityDataStorageComplexTest()
     {
         var storage = new EntityDataStorage(100, 100);
         storage.StartTransaction();
@@ -25,6 +25,6 @@ public class EntityDataStorageComplexTests
         entity.Set(Progress._.Level, 1);
         entity.Set(Progress._.Exp, 0);
 
-        await Assert.That(entity.Get(Progress._.Level)).IsEqualTo(1);
+        Assert.That(entity.Get(Progress._.Level), Is.EqualTo(1));
     }
 }
