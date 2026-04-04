@@ -1,7 +1,6 @@
 namespace NEconomicon.Tests.Storage;
 
 using NEconomicon.Model;
-using NEconomicon.Storage;
 
 public class EntityDataStorageTests
 {

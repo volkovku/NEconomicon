@@ -9,10 +9,10 @@ public class ComponentRegistryTests
     public sealed class TestComponent1 : Component<TestComponent1>
     {
         [Property(id: 1)]
-        public Property<int> Property1 { get; set; }
+        public readonly Property<int> Property1 = null!;
 
         [Property(id: 2, name: "Property2SpecifiedName")]
-        public Property<string> Property2 { get; set; }
+        public readonly Property<string> Property2 = null!;
     }
 
     [Test]

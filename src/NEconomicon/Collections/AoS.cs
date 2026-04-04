@@ -3,7 +3,7 @@ namespace NEconomicon.Collections;
 public sealed class Aos<T>(int initialCapacity, IGrowStrategy<T> growStrategy) where T : struct
 {
     private T[] _items = new T[initialCapacity];
-    private int _itemsCount = 0;
+    private int _itemsCount;
 
     public int Count => _itemsCount;
 

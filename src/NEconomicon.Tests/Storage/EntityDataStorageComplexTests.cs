@@ -1,7 +1,6 @@
 namespace NEconomicon.Tests.Storage;
 
 using NEconomicon.Model;
-using NEconomicon.Storage;
 using PropertyAttribute = NEconomicon.Model.PropertyAttribute;
 
 public class EntityDataStorageComplexTests
@@ -9,11 +8,11 @@ public class EntityDataStorageComplexTests
     [Component(id: 1)]
     public class Progress : Component<Progress>
     {
-        [Property(id: 1)]
-        public Property<int> Level { get; set; }
+        [Property(id: 1)] 
+        public readonly Property<int> Level = null!;
 
-        [Property(id: 2)]
-        public Property<int> Exp { get; set; }
+        [Property(id: 2)] 
+        public readonly Property<int> Exp = null!;
     }
 
     [Test]

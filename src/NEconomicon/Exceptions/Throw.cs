@@ -1,7 +1,7 @@
 namespace NEconomicon.Exceptions;
 
 using System.Runtime.CompilerServices;
-using NEconomicon.Model;
+using Model;
 
 public static class Throw
 {

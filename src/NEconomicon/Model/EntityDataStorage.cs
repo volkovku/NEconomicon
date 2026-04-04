@@ -1,9 +1,7 @@
-﻿namespace NEconomicon.Storage;
-
-using System.Collections.Generic;
-using NEconomicon.Collections;
+﻿using NEconomicon.Collections;
 using NEconomicon.Exceptions;
-using NEconomicon.Model;
+
+namespace NEconomicon.Model;
 
 /// <summary>
 /// Represents storage which manages entities data.
@@ -12,7 +10,6 @@ public class EntityDataStorage
 {
     private const int None = 0;
 
-    private const byte EntryFlagNone = 0;
     private const byte EntryFlagTx = 1;
     private const byte EntryFlagTombstone = 1 << 1;
 
@@ -37,18 +34,22 @@ public class EntityDataStorage
     private readonly Aos<long> _entryValue;
     private readonly Aos<long> _entryValueBackup;
 
+    private readonly List<string> _strings;
+    private readonly Dictionary<string, int> _stringIndex;
+
     private uint _nextEntityId;
 
+    private readonly List<int> _txAffectedIndexes;
     private bool _txStarted;
     private int _txEntriesCountOnStart;
     private uint _txNextEntityIdOnStart;
-    private List<int> _txAffectedIndexes;
+    private int _txStringsCountOnStart;
 
     /// <summary>
     /// Initializes a new instance of storage.
     /// </summary>
     /// <param name="initialCapacity">An initial capacity of storage.</param>
-    /// <param name="growSize">A grow size of storage.</param>
+    /// <param name="growSize">A growth size of storage.</param>
     public EntityDataStorage(int initialCapacity, int growSize)
     {
         _entryIndexByPackedId = [];
@@ -59,15 +60,19 @@ public class EntityDataStorage
         _entryValue = new Aos<long>(initialCapacity, new IncGrowStrategy<long>(growSize));
         _entryValueBackup = new Aos<long>(initialCapacity, new IncGrowStrategy<long>(growSize));
 
+        _strings = new List<string>();
+        _stringIndex = new Dictionary<string, int>();
+
         _nextEntityId = 1;
 
         // 0 idx reserved as none placeholder
-        _entryPackedId.AddValue(0); 
+        _entryPackedId.AddValue(0);
         _entryPrevIdx.AddValue(0);
         _entryNextIdx.AddValue(0);
         _entryFlags.AddValue(0);
         _entryValue.AddValue(0);
         _entryValueBackup.AddValue(0);
+        _strings.Add(string.Empty);
 
         _txStarted = false;
         _txAffectedIndexes = [];
@@ -83,6 +88,7 @@ public class EntityDataStorage
         _txStarted = true;
         _txEntriesCountOnStart = _entryPackedId.Count;
         _txNextEntityIdOnStart = _nextEntityId;
+        _txStringsCountOnStart = _strings.Count;
     }
 
     /// <summary>
@@ -122,30 +128,8 @@ public class EntityDataStorage
     /// </summary>
     public void RollbackTransaction()
     {
-        if (_txAffectedIndexes.Count == 0)
-        {
-            CloseTransaction();
-            return;
-        }
-
-        _txAffectedIndexes.Sort();
-        for (var i = _txAffectedIndexes.Count - 1; i >= 0; i--)
-        {
-            var idx = _txAffectedIndexes[i];
-            if (idx >= _txEntriesCountOnStart)
-            {
-                RemoveEntryAt(idx);
-                continue;
-            }
-
-            ref var flags = ref _entryFlags.GetAt(idx);
-            flags = 0;
-
-            ref var value = ref _entryValue.GetAt(idx);
-            value = _entryValueBackup.GetAt(idx);
-        }
-
-        _nextEntityId = _txNextEntityIdOnStart;
+        RollbackData();
+        RollbackStrings();
         CloseTransaction();
     }
 
@@ -308,14 +292,14 @@ public class EntityDataStorage
         var packedId = GetPackedPropertyId(entityId.Value, componentId, propertyId);
         if (!_entryIndexByPackedId.TryGetValue(packedId, out var idx))
         {
-            value = default;
+            value = 0;
             return false;
         }
 
         ref var f = ref _entryFlags.GetAt(idx);
         if (IsMarkedWithTombstone(ref f))
         {
-            value = default;
+            value = 0;
             return false;
         }
 
@@ -356,8 +340,74 @@ public class EntityDataStorage
         _entryValueBackup.SetAt(propertyIdx, propertyValue);
         propertyValue = value;
         SetChangedInTransaction(ref f, propertyIdx);
+    }
 
-        return;
+    /// <summary>
+    /// Returns intern string identifier.
+    /// </summary>
+    /// <param name="str">A string.</param>
+    /// <returns>Returns intern string identifier.</returns>
+    public int GetStringId(string str)
+    {
+        EnsureTransactionStarted();
+
+        if (_stringIndex.TryGetValue(str, out var id))
+        {
+            return id;
+        }
+
+        id = _strings.Count;
+        _strings.Add(str);
+        _stringIndex[str] = id;
+
+        return id;
+    }
+
+    /// <summary>
+    /// Gets intern string by its identifier.
+    /// </summary>
+    /// <param name="strId">An identifier of intern string.</param>
+    /// <returns>Returns intern string.</returns>
+    public string GetStringById(int strId)
+    {
+        return _strings[strId];
+    }
+
+    private void RollbackData()
+    {
+        if (_txAffectedIndexes.Count == 0)
+        {
+            return;
+        }
+
+        _txAffectedIndexes.Sort();
+        for (var i = _txAffectedIndexes.Count - 1; i >= 0; i--)
+        {
+            var idx = _txAffectedIndexes[i];
+            if (idx >= _txEntriesCountOnStart)
+            {
+                RemoveEntryAt(idx);
+                continue;
+            }
+
+            ref var flags = ref _entryFlags.GetAt(idx);
+            flags = 0;
+
+            ref var value = ref _entryValue.GetAt(idx);
+            value = _entryValueBackup.GetAt(idx);
+        }
+
+        _nextEntityId = _txNextEntityIdOnStart;
+    }
+
+    private void RollbackStrings()
+    {
+        for (var i = _strings.Count - 1; i >= _txStringsCountOnStart; i--)
+        {
+            var s = _strings[i];
+            _strings.RemoveAt(i);
+            _stringIndex.Remove(s);
+        }
     }
 
     private bool AddComponentInternal(EntityId entityId, ushort componentId, out int componentIdx)
