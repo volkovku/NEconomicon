@@ -3,11 +3,11 @@ namespace NEconomicon.Model;
 /// <summary>
 /// Describes component.
 /// </summary>
-/// <param name="id">An unique identifier of described component.</param>
+/// <param name="id">A unique identifier of described component.</param>
 /// <param name="name">A name of described component.</param>
 /// <param name="properties">A collection of component properties.</param>
 public sealed class ComponentDescription(
-    ushort id, 
+    ushort id,
     string name,
     IReadOnlyList<IProperty> properties)
 {
@@ -25,4 +25,9 @@ public sealed class ComponentDescription(
     /// A collection of described component properties.
     /// </summary>
     public readonly IReadOnlyList<IProperty> Properties = properties;
+
+    /// <summary>
+    /// A collection of schemes where this component participates.
+    /// </summary>
+    public readonly ComponentSchemes Schemes = new();
 }

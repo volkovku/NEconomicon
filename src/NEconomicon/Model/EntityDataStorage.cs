@@ -48,10 +48,13 @@ public class EntityDataStorage
     /// <summary>
     /// Initializes a new instance of storage.
     /// </summary>
+    /// <param name="scheme">A components scheme associated with this storage.</param>
     /// <param name="initialCapacity">An initial capacity of storage.</param>
     /// <param name="growSize">A growth size of storage.</param>
-    public EntityDataStorage(int initialCapacity, int growSize)
+    public EntityDataStorage(Scheme scheme, int initialCapacity, int growSize)
     {
+        Scheme = scheme;
+
         _entryIndexByPackedId = [];
         _entryPackedId = new Aos<ulong>(initialCapacity, new IncGrowStrategy<ulong>(growSize));
         _entryPrevIdx = new Aos<int>(initialCapacity, new IncGrowStrategy<int>(growSize));
@@ -78,6 +81,12 @@ public class EntityDataStorage
         _txAffectedIndexes = [];
     }
 
+    /// <summary>
+    /// A scheme associated with this storage.
+    /// Should be used in hi level DSL.
+    /// </summary>
+    public readonly Scheme Scheme;
+    
     /// <summary>
     /// Starts transaction.
     /// </summary>
@@ -162,7 +171,7 @@ public class EntityDataStorage
     /// Try to get entity associated with specified identifier.
     /// If entity found returns true; otherwise false.
     /// </summary>
-    /// <param name="id">An idetifier of requested entity.</param>
+    /// <param name="id">An identifier of requested entity.</param>
     /// <param name="entity">Found entity.</param>
     /// <returns></returns>
     public bool TryGetEntityById(EntityId id, out Entity entity)
@@ -263,7 +272,7 @@ public class EntityDataStorage
     /// </summary>
     /// <param name="entityId">An entity identity.</param>
     /// <param name="componentId">A component identity.</param>
-    /// <returns>Returns true if entity has component; othwerwise false.</returns>
+    /// <returns>Returns true if entity has component; otherwise false.</returns>
     public bool HasComponent(EntityId entityId, ushort componentId)
     {
         var packedId = GetPackedComponentId(entityId.Value, componentId);
@@ -277,7 +286,7 @@ public class EntityDataStorage
     }
 
     /// <summary>
-    /// Tryes to get entity component value.
+    /// Tries to get entity component value.
     /// Returns true if values was found; otherwise false.
     /// </summary>
     /// <param name="entityId">An entity identity.</param>
@@ -535,7 +544,7 @@ public class EntityDataStorage
     }
 
     // Packed entity id
-    // 8bit  |      : Alligment
+    // 8bit  |      : Alignment
     // 32bit | << 24: EntityId
     // 16bit | << 8 : ComponentId
     // 8bit  | << 0 : PropertyId

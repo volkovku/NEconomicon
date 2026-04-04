@@ -18,7 +18,10 @@ public class EntityDataStorageComplexTests
     [Test]
     public void EntityDataStorageComplexTest()
     {
-        var storage = new EntityDataStorage(100, 100);
+        var scheme = new Scheme();
+        scheme.Register<Progress>();
+        
+        var storage = new EntityDataStorage(scheme,100, 100);
         storage.StartTransaction();
 
         var entity = storage.NewEntity();

@@ -14,7 +14,7 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
 
     // ReSharper disable once StaticMemberInGenericType
     private static readonly TComponent? Instance;
-    
+
     // ReSharper disable once StaticMemberInGenericType
     private static readonly ComponentDescription? Description;
 
@@ -45,6 +45,7 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
         }
 
         var componentId = cmpAttr.Id;
+        var componentName = cmpAttr.Name ?? cmpType.Name;
         var instance = Activator.CreateInstance<TComponent>();
         var properties = new List<IProperty>();
         foreach (var field in cmpType.GetFields(BindingFlags.Public | BindingFlags.Instance))
@@ -61,8 +62,9 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
             var propertyValue = Activator.CreateInstance(
                 propertyType,
                 propAttr.Id,
+                propAttr.Name ?? field.Name,
                 componentId,
-                propAttr.Name ?? field.Name
+                componentName
             );
 
             field.SetValue(instance, propertyValue);
@@ -71,6 +73,6 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
 
         InitException = null;
         Instance = instance;
-        Description = new ComponentDescription(componentId, cmpAttr.Name ?? cmpType.Name, properties);
+        Description = new ComponentDescription(componentId, componentName, properties);
     }
 }

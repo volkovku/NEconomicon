@@ -4,8 +4,6 @@ namespace NEconomicon.Tests.Model;
 
 public class EntityDataStorageTests
 {
-    private EntityDataStorage CreateStorage() => new(16, 8);
-
     [Test]
     public void NewEntity_ShouldCreateEntity_WhenTransactionStarted()
     {
@@ -102,7 +100,7 @@ public class EntityDataStorageTests
     {
         var storage = CreateStorage();
         storage.StartTransaction();
-    
+
         var entity = storage.NewEntity();
         storage.SetPropertyValue(entity.Id, 1, 2, 100);
         storage.CommitTransaction();
@@ -192,4 +190,6 @@ public class EntityDataStorageTests
         var found = storage.TryGetEntityById(new EntityId(999), out _);
         Assert.That(found, Is.False);
     }
+
+    private static EntityDataStorage CreateStorage() => new(new Scheme(), 16, 8);
 }
