@@ -25,15 +25,15 @@ public sealed class Scheme
     /// <typeparam name="TComponent">A type of component to register.</typeparam>
     public void Register<TComponent>() where TComponent : Component<TComponent>, new()
     {
-        var description = Component<TComponent>.D;
-        var id = description.Id;
-        if (!_components.TryAdd(id, description))
+        var component = Component<TComponent>.D;
+        var id = component.Id;
+        if (!_components.TryAdd(id, component))
         {
             throw new NEconomiconException($"Component already registered (component={typeof(TComponent)})");
         }
 
-        description.Schemes.AddScheme(this);
-        foreach (var prop in description.Properties)
+        component.Schemes.AddScheme(this);
+        foreach (var prop in component.Properties)
         {
             prop.AddScheme(this);
         }

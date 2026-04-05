@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using NEconomicon.Exceptions;
+
 namespace NEconomicon.Model;
 
 /// <summary>
@@ -32,6 +35,11 @@ public sealed class Property<T>(byte id, string name, ushort componentId, string
     public string ComponentName { get; } = componentName;
 
     /// <summary>
+    /// Gets this property value type.
+    /// </summary>
+    public PropertyValueType ValueType { get; } = GetValueType();
+
+    /// <summary>
     /// Adds scheme where component of this property are participates.
     /// </summary>
     /// <param name="scheme">A scheme to add.</param>
@@ -42,4 +50,50 @@ public sealed class Property<T>(byte id, string name, ushort componentId, string
     /// </summary>
     /// <param name="scheme">A scheme to check.</param>
     public bool DefinedInScheme(Scheme scheme) => _schemes.ContainsScheme(scheme);
+
+    private static PropertyValueType GetValueType()
+    {
+        if (typeof(T) == typeof(int))
+        {
+            return PropertyValueType.Int32;
+        }
+
+        if (typeof(T) == typeof(long))
+        {
+            return PropertyValueType.Int64;
+        }
+
+        if (typeof(T) == typeof(float))
+        {
+            return PropertyValueType.Float32;
+        }
+
+        if (typeof(T) == typeof(double))
+        {
+            return PropertyValueType.Float64;
+        }
+
+        if (typeof(T) == typeof(string))
+        {
+            return PropertyValueType.String;
+        }
+
+        if (typeof(T) == typeof(DateTime))
+        {
+            return PropertyValueType.DateTime;
+        }
+
+        if (typeof(T) == typeof(TimeSpan))
+        {
+            return PropertyValueType.TimeSpan;
+        }
+
+        return NotSupportedValueType();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static PropertyValueType NotSupportedValueType()
+    {
+        throw new NEconomiconException($"Not supported property value type (type={typeof(T)})");
+    }
 }
