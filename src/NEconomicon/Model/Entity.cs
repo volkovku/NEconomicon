@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using NEconomicon.Exceptions;
+using NEconomicon.Utils;
 
 namespace NEconomicon.Model;
 
@@ -82,7 +83,7 @@ public readonly struct Entity(EntityId id, EntityDataStorage storage)
     /// Gets the value of a property for the specified component type.
     /// </summary>
     /// <param name="property">A property to get its value.</param>
-    /// <returns>Returns the property value; or 0 if not found.</returns>
+    /// <returns>Returns the property value; or empty string if not found.</returns>
     public string Get(Property<string> property)
     {
         if (!storage.TryGetPropertyValue(Id, Checked(property).ComponentId, property.Id, out var strId))
@@ -107,6 +108,99 @@ public readonly struct Entity(EntityId id, EntityDataStorage storage)
     {
         var strId = storage.GetStringId(value);
         storage.SetPropertyValue(Id, Checked(property).ComponentId, property.Id, strId);
+    }
+
+    /// <summary>
+    /// Gets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to get its value.</param>
+    /// <returns>Returns the property value; or 0 if not found.</returns>
+    public float Get(Property<float> property)
+    {
+        return !storage.TryGetPropertyValue(Id, Checked(property).ComponentId, property.Id, out var raw)
+            ? 0f
+            : FastConvert.L2F(raw);
+    }
+
+    /// <summary>
+    /// Sets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to set its value.</param>
+    /// <param name="value">A value to set.</param>
+    public void Set(Property<float> property, float value)
+    {
+        storage.SetPropertyValue(Id, Checked(property).ComponentId, property.Id, FastConvert.F2L(value));
+    }
+
+    /// <summary>
+    /// Gets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to get its value.</param>
+    /// <returns>Returns the property value; or 0 if not found.</returns>
+    public double Get(Property<double> property)
+    {
+        return !storage.TryGetPropertyValue(Id, Checked(property).ComponentId, property.Id, out var raw)
+            ? 0f
+            : FastConvert.L2D(raw);
+    }
+
+    /// <summary>
+    /// Sets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to set its value.</param>
+    /// <param name="value">A value to set.</param>
+    public void Set(Property<double> property, double value)
+    {
+        storage.SetPropertyValue(Id, Checked(property).ComponentId, property.Id, FastConvert.D2L(value));
+    }
+
+    /// <summary>
+    /// Gets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to get its value.</param>
+    /// <returns>Returns the property value; or DateTime.MinValue if not found.</returns>
+    public DateTime Get(Property<DateTime> property)
+    {
+        return !storage.TryGetPropertyValue(Id, Checked(property).ComponentId, property.Id, out var raw)
+            ? DateTime.MinValue
+            : new DateTime(raw, DateTimeKind.Utc);
+    }
+
+    /// <summary>
+    /// Sets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to set its value.</param>
+    /// <param name="value">A value to set.</param>
+    public void Set(Property<DateTime> property, DateTime value)
+    {
+        if (value.Kind != DateTimeKind.Utc)
+        {
+            throw new NEconomiconException($"Not supported DateTime kind (kind={value.Kind})");
+        }
+        
+        storage.SetPropertyValue(Id, Checked(property).ComponentId, property.Id, value.Ticks);
+    }
+    
+    /// <summary>
+    /// Gets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to get its value.</param>
+    /// <returns>Returns the property value; or TimeSpan.Zero if not found.</returns>
+    public TimeSpan Get(Property<TimeSpan> property)
+    {
+        return !storage.TryGetPropertyValue(Id, Checked(property).ComponentId, property.Id, out var raw)
+            ? TimeSpan.Zero
+            : TimeSpan.FromTicks(raw);
+    }
+
+    /// <summary>
+    /// Sets the value of a property for the specified component type.
+    /// </summary>
+    /// <param name="property">A property to set its value.</param>
+    /// <param name="value">A value to set.</param>
+    public void Set(Property<TimeSpan> property, TimeSpan value)
+    {
+        storage.SetPropertyValue(Id, Checked(property).ComponentId, property.Id, value.Ticks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
