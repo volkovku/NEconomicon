@@ -18,6 +18,14 @@ public sealed class Scheme
     /// Gets components registered in this scheme.
     /// </summary>
     public IEnumerable<ComponentDescription> Components => _components.Values;
+
+    /// <summary>
+    /// Gets component by its identifier.
+    /// If component not found throws exception.
+    /// </summary>
+    /// <param name="componentId">An identifier of component to get.</param>
+    /// <returns>Returns component.</returns>
+    public ComponentDescription GetComponent(int componentId) => _components[componentId];
     
     /// <summary>
     /// Registers component in this scheme.

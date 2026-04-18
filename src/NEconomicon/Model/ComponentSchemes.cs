@@ -1,9 +1,11 @@
+using System.Collections;
+
 namespace NEconomicon.Model;
 
 /// <summary>
 /// Represents a collection of schemes where component participates.
 /// </summary>
-public sealed class ComponentSchemes
+public sealed class ComponentSchemes : IEnumerable<Scheme>
 {
     private const int FastCheckSlotsCount = 5;
 
@@ -19,7 +21,7 @@ public sealed class ComponentSchemes
     /// Returns count of registered schemes.
     /// </summary>
     public int Count => _schemesCount;
-    
+
     /// <summary>
     /// Adds specified scheme to this collection.
     /// </summary>
@@ -59,4 +61,47 @@ public sealed class ComponentSchemes
         _scheme3 == scheme ||
         _scheme4 == scheme ||
         (_schemesCount > FastCheckSlotsCount && _schemesN!.Contains(scheme));
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public IEnumerator<Scheme> GetEnumerator()
+    {
+        if (_scheme0 != null)
+        {
+            yield return _scheme0;
+        }
+
+        if (_scheme1 != null)
+        {
+            yield return _scheme1;
+        }
+
+        if (_scheme2 != null)
+        {
+            yield return _scheme2;
+        }
+
+        if (_scheme3 != null)
+        {
+            yield return _scheme3;
+        }
+
+        if (_scheme4 != null)
+        {
+            yield return _scheme4;
+        }
+
+        if (_schemesN == null)
+        {
+            yield break;
+        }
+
+        foreach (var scheme in _schemesN)
+        {
+            yield return scheme;
+        }
+    }
 }

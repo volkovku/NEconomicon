@@ -63,8 +63,7 @@ public abstract class Component<TComponent> where TComponent : Component<TCompon
                 propertyType,
                 propAttr.Id,
                 propAttr.Name ?? field.Name,
-                componentId,
-                componentName
+                componentId
             );
 
             field.SetValue(instance, propertyValue);

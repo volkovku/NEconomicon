@@ -10,7 +10,7 @@ namespace NEconomicon.Model;
 /// <param name="componentId">An identifier of component which owns this property.</param>
 /// <param name="name">A name of this property.</param>
 /// <typeparam name="T">A type-constrains for hi-level DLS (see Entity get/set methods for example).</typeparam>
-public sealed class Property<T>(byte id, string name, ushort componentId, string componentName) : IProperty
+public sealed class Property<T>(byte id, string name, ushort componentId) : IProperty
 {
     private readonly ComponentSchemes _schemes = new();
 
@@ -30,9 +30,9 @@ public sealed class Property<T>(byte id, string name, ushort componentId, string
     public ushort ComponentId { get; } = componentId;
 
     /// <summary>
-    /// A name of component which owns this property.
+    /// Gets name of this property component.
     /// </summary>
-    public string ComponentName { get; } = componentName;
+    public string ComponentName => _schemes.First().GetComponent(ComponentId).Name;
 
     /// <summary>
     /// Gets this property value type.
